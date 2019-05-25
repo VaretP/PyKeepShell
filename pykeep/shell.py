@@ -5,7 +5,7 @@ from config import *
 
 class Shell():
 
-    options = ['ls']
+    options = ['ls', 'exit']
     
     def __init__(self, prompt: str, conf: Config):
         self.prompt = prompt
@@ -14,6 +14,7 @@ class Shell():
 
     def ls(self) -> None:
         subprocess.run(['ls', '--color=auto', self.conf.path])
+
 
     @staticmethod
     def complete(text, state):
@@ -28,6 +29,8 @@ class Shell():
         while 1:
             try:
                 line = input(self.prompt)
+                if line == 'exit':
+                    break
                 try:
                     commands[line]()
                 except:
