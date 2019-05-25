@@ -1,12 +1,12 @@
 import readline
 import subprocess
-from config import *
+from config import Config
 
 
 class Shell():
 
     options = ['ls', 'exit']
-    
+
     def __init__(self, prompt: str, conf: Config):
         self.prompt = prompt
         self.conf = conf
@@ -14,7 +14,6 @@ class Shell():
 
     def ls(self) -> None:
         subprocess.run(['ls', '--color=auto', self.conf.path])
-
 
     @staticmethod
     def complete(text, state):
@@ -33,7 +32,7 @@ class Shell():
                     break
                 try:
                     commands[line]()
-                except:
+                except KeyError:
                     print(f'pykeep: command not found: {line}')
             except EOFError:
                 print()
