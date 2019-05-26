@@ -1,5 +1,6 @@
 import os.path
 
+
 class Config():
 
     def __init__(self, path: str):
