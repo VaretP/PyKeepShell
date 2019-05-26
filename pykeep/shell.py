@@ -13,6 +13,7 @@ class Shell():
         self.commands = {
                 'ls': self.ls,
                 'add': self.add,
+                'edit': self.edit,
         }
         readline.parse_and_bind('tab: complete')
 
@@ -38,6 +39,10 @@ class Shell():
             return
         with open(self.conf.pkConf, 'a') as pkConf:
             pkConf.write(f'{args[1]} {path}\n')
+
+    def edit(self, args: list) -> None:
+        editor = os.environ.get('EDITOR','vim')
+        subprocess.run([editor] + args)
 
     def complete(self, text: str, state: int) -> str:
         results = [cmd for cmd in self.commands.keys()
