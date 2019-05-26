@@ -2,6 +2,7 @@ import readline
 import subprocess
 import os
 import shutil
+import filecmp
 from config import Config
 
 
@@ -14,6 +15,7 @@ class Shell():
                 'ls': self.ls,
                 'add': self.add,
                 'edit': self.edit,
+                'check': self.check,
         }
         readline.parse_and_bind('tab: complete')
 
@@ -23,6 +25,13 @@ class Shell():
             d = dict((k, v) for k, v in (line.strip().split(' ')
                 for line in pkConf.readlines()))
         return d
+
+    def getNeededUpdates(self) -> dict:
+        needUpdate = {}
+        for alias, path in self.readPkConf().items():
+            if filecmp.cmp(path, f'{self.conf.path}/{alias}'):
+                needUpdate[alias] = path
+        return needUpdate
 
     def ls(self, args: list) -> None:
         subprocess.run(['ls', '--color=auto', self.conf.path])
@@ -43,6 +52,10 @@ class Shell():
     def edit(self, args: list) -> None:
         editor = os.environ.get('EDITOR','vim')
         subprocess.run([editor] + args)
+
+    def check(self, args: list) -> None:
+        for alias in self.getNeededUpdates().keys():
+            print(f'"{alias}" can be updated.')
 
     def complete(self, text: str, state: int) -> str:
         results = [cmd for cmd in self.commands.keys()
