@@ -1,5 +1,7 @@
 import readline
 import subprocess
+import os
+import shutil
 from config import Config
 
 
@@ -10,15 +12,29 @@ class Shell():
         self.conf = conf
         self.commands = {
                 'ls': self.ls,
+                'add': self.add,
         }
         readline.parse_and_bind('tab: complete')
 
     def ls(self, args: list) -> None:
         subprocess.run(['ls', '--color=auto', self.conf.path])
 
-    #@staticmethod
-    def complete(self, text, state):
-        results = [cmd for cmd in self.commands.keys()  if cmd.startswith(text)]
+    def add(self, args: list) -> None:
+        if len(args) != 2:
+            print('add: usage: add "path" "alias"')
+            return
+        path = os.path.expanduser(args[0])
+        try:
+            shutil.copyfile(path, f'{self.conf.path}/{args[1]}')
+        except FileNotFoundError:
+            print(f'no such file or directory: {args[0]}')
+            return
+        with open(self.conf.pkConf, 'a') as pkConf:
+            pkConf.write(f'{args[1]} {path}')
+
+    def complete(self, text: str, state: int) -> str:
+        results = [cmd for cmd in self.commands.keys()
+                   if cmd.startswith(text)]
         return results[state]
 
     def loop(self) -> None:
@@ -31,7 +47,7 @@ class Shell():
                 try:
                     self.commands[line[0]](line[1:])
                 except KeyError:
-                    print(f'pykeep: command not found: {line[0]}')
-            except EOFError:
+                    print(f'command not found: {line[0]}')
+            except EOFError and KeyboardInterrupt:
                 print()
                 break
