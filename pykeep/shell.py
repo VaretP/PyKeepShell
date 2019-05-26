@@ -16,6 +16,13 @@ class Shell():
         }
         readline.parse_and_bind('tab: complete')
 
+    def readPkConf(self) -> dict:
+        d = {}
+        with open(self.conf.pkConf, 'r') as pkConf:
+            d = dict((k, v) for k, v in (line.strip().split(' ')
+                for line in pkConf.readlines()))
+        return d
+
     def ls(self, args: list) -> None:
         subprocess.run(['ls', '--color=auto', self.conf.path])
 
@@ -30,7 +37,7 @@ class Shell():
             print(f'no such file or directory: {args[0]}')
             return
         with open(self.conf.pkConf, 'a') as pkConf:
-            pkConf.write(f'{args[1]} {path}')
+            pkConf.write(f'{args[1]} {path}\n')
 
     def complete(self, text: str, state: int) -> str:
         results = [cmd for cmd in self.commands.keys()
