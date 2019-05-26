@@ -23,7 +23,7 @@ class Shell():
         d = {}
         with open(self.conf.pkConf, 'r') as pkConf:
             d = dict((k, v) for k, v in (line.strip().split(' ')
-                for line in pkConf.readlines()))
+                     for line in pkConf.readlines()))
         return d
 
     def getNeededUpdates(self) -> dict:
@@ -50,7 +50,7 @@ class Shell():
             pkConf.write(f'{args[1]} {path}\n')
 
     def edit(self, args: list) -> None:
-        editor = os.environ.get('EDITOR','vim')
+        editor = os.environ.get('EDITOR', 'vim')
         subprocess.run([editor] + args)
 
     def check(self, args: list) -> None:
