@@ -17,6 +17,7 @@ class Shell():
                 'edit': self.edit,
                 'check': self.check,
                 'update': self.update,
+                'pull': self.pull,
         }
         readline.parse_and_bind('tab: complete')
 
@@ -55,8 +56,12 @@ class Shell():
         subprocess.run([editor] + [f'{self.conf.path}/{alias}' for alias in args])
 
     def check(self, args: list) -> None:
-        for alias in self.getNeededUpdates().keys():
-            print(f'"{alias}" can be updated.')
+        needUpdate = self.getNeededUpdates().keys()
+        if len(needUpdate) != 0:
+            for alias in needUpdate:
+                print(f'"{alias}" can be updated.')
+        else:
+            print('Everything is up to date')
 
     def update(self, args: list) -> None:
         needUpdate = self.getNeededUpdates()
@@ -79,6 +84,22 @@ class Shell():
                     shutil.copyfile(f'{self.conf.path}/{alias}', path)
                     print(f'Updated {alias}.')
 
+    def pull(self, args: list) -> None:
+        needUpdate = self.getNeededUpdates()
+        if len(args) != 0:
+            possibleFiles = self.readPkConf().keys()
+            for alias in args:
+                if alias not in possibleFiles:
+                    print(f'Unknown file: {alias}')
+                elif alias in needUpdate.keys():
+                    path = needUpdate[alias]
+                    shutil.copyfile(path, f'{self.conf.path}/{alias}')
+                    print(f'Pulled {alias}.')
+                else:
+                    print(f'{alias} is already up to date')
+        else:
+            print(f'pull: usage: pull "file" ...')
+
     def complete(self, text: str, state: int) -> str:
         results = [cmd for cmd in self.commands.keys()
                    if cmd.startswith(text)]
@@ -94,7 +115,7 @@ class Shell():
                 try:
                     self.commands[line[0]](line[1:])
                 except KeyError:
-                    print(f'command not found: {line[0]}')
+                    print(f'Command not found: {line[0]}')
             except EOFError and KeyboardInterrupt:
                 print()
                 break
