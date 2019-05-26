@@ -2,7 +2,6 @@ import readline
 import subprocess
 import os
 import shutil
-import filecmp
 from config import Config
 
 
@@ -20,20 +19,6 @@ class Shell():
                 'pull': self.pull,
         }
         readline.parse_and_bind('tab: complete')
-
-    def readPkConf(self) -> dict:
-        d = {}
-        with open(self.conf.pkConf, 'r') as pkConf:
-            d = dict((k, v) for k, v in (line.strip().split(' ')
-                     for line in pkConf.readlines()))
-        return d
-
-    def getNeededUpdates(self) -> dict:
-        needUpdate = {}
-        for alias, path in self.readPkConf().items():
-            if not filecmp.cmp(path, f'{self.conf.path}/{alias}'):
-                needUpdate[alias] = path
-        return needUpdate
 
     def ls(self, args: list) -> None:
         subprocess.run(['ls', '--color=auto', self.conf.path])
@@ -56,7 +41,7 @@ class Shell():
         subprocess.run([editor] + [f'{self.conf.path}/{alias}' for alias in args])
 
     def check(self, args: list) -> None:
-        needUpdate = self.getNeededUpdates().keys()
+        needUpdate = self.conf.getNeededUpdates().keys()
         if len(needUpdate) != 0:
             for alias in needUpdate:
                 print(f'"{alias}" can be updated.')
@@ -64,9 +49,9 @@ class Shell():
             print('Everything is up to date')
 
     def update(self, args: list) -> None:
-        needUpdate = self.getNeededUpdates()
+        needUpdate = self.conf.getNeededUpdates()
         if len(args) != 0:
-            possibleFiles = self.readPkConf().keys()
+            possibleFiles = self.conf.readPkConf().keys()
             for alias in args:
                 if alias not in possibleFiles:
                     print(f'Unknown file: {alias}')
@@ -85,9 +70,9 @@ class Shell():
                     print(f'Updated {alias}.')
 
     def pull(self, args: list) -> None:
-        needUpdate = self.getNeededUpdates()
+        needUpdate = self.conf.getNeededUpdates()
         if len(args) != 0:
-            possibleFiles = self.readPkConf().keys()
+            possibleFiles = self.conf.readPkConf().keys()
             for alias in args:
                 if alias not in possibleFiles:
                     print(f'Unknown file: {alias}')
@@ -101,6 +86,8 @@ class Shell():
             print(f'pull: usage: pull "file" ...')
 
     def complete(self, text: str, state: int) -> str:
+        if text == '':
+            return None
         results = [cmd for cmd in self.commands.keys()
                    if cmd.startswith(text)]
         return results[state]
