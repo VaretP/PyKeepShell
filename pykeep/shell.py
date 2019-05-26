@@ -16,6 +16,7 @@ class Shell():
                 'add': self.add,
                 'edit': self.edit,
                 'check': self.check,
+                'update': self.update,
         }
         readline.parse_and_bind('tab: complete')
 
@@ -29,7 +30,7 @@ class Shell():
     def getNeededUpdates(self) -> dict:
         needUpdate = {}
         for alias, path in self.readPkConf().items():
-            if filecmp.cmp(path, f'{self.conf.path}/{alias}'):
+            if not filecmp.cmp(path, f'{self.conf.path}/{alias}'):
                 needUpdate[alias] = path
         return needUpdate
 
@@ -51,11 +52,24 @@ class Shell():
 
     def edit(self, args: list) -> None:
         editor = os.environ.get('EDITOR', 'vim')
-        subprocess.run([editor] + args)
+        subprocess.run([editor] + [f'{self.conf.path}/{alias}' for alias in args])
 
     def check(self, args: list) -> None:
         for alias in self.getNeededUpdates().keys():
             print(f'"{alias}" can be updated.')
+
+    def update(self, args: list) -> None:
+        needUpdate = self.getNeededUpdates()
+        if len(args) != 0:
+            pass
+            #for alias in args:
+        else:
+            if len(needUpdate) == 0:
+                print('Already up to date')
+            else:
+                for alias, path in needUpdate.items():
+                    shutil.copyfile(f'{self.conf.path}/{alias}', path)
+                    print(f'Updated {alias}.')
 
     def complete(self, text: str, state: int) -> str:
         results = [cmd for cmd in self.commands.keys()
