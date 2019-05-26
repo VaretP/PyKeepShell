@@ -61,8 +61,16 @@ class Shell():
     def update(self, args: list) -> None:
         needUpdate = self.getNeededUpdates()
         if len(args) != 0:
-            pass
-            #for alias in args:
+            possibleFiles = self.readPkConf().keys()
+            for alias in args:
+                if alias not in possibleFiles:
+                    print(f'Unknown file: {alias}')
+                elif alias in needUpdate.keys():
+                    path = needUpdate[alias]
+                    shutil.copyfile(f'{self.conf.path}/{alias}', path)
+                    print(f'Updated {alias}.')
+                else:
+                    print(f'{alias} is already up to date')
         else:
             if len(needUpdate) == 0:
                 print('Already up to date')
