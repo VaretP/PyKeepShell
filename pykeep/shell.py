@@ -20,7 +20,7 @@ class Shell():
         self.prompt = prompt
         self.conf = conf
         self.commands = {
-                'ls': self.ls,
+                'list': self.ls,
                 'add': self.add,
                 'edit': self.edit,
                 'pull': self.pull,
