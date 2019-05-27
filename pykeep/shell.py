@@ -20,7 +20,7 @@ class Shell():
         self.prompt = prompt
         self.conf = conf
         self.commands = {
-                'list': self.ls,
+                'list': self.list,
                 'add': self.add,
                 'edit': self.edit,
                 'pull': self.pull,
@@ -29,7 +29,7 @@ class Shell():
         }
         readline.parse_and_bind('tab: complete')
 
-    def ls(self, args: list) -> None:
+    def list(self, args: list) -> None:
         subprocess.run(['ls', '--color=auto', self.conf.path])
 
     def add(self, args: list) -> None:
@@ -47,6 +47,9 @@ class Shell():
             pkConf.write(f'{args[1]} {path}\n')
 
     def edit(self, args: list) -> None:
+        if len(args) == 0:
+            print(f'{colors.WARNING}edit: usage: edit file{colors.END}')
+            return
         editor = os.environ.get('EDITOR', 'vim')
         subprocess.run([editor]
                 + [f'{self.conf.path}/{alias}' for alias in args])
