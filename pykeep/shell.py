@@ -50,9 +50,15 @@ class Shell():
         if len(args) == 0:
             print(f'{colors.WARNING}edit: usage: edit file{colors.END}')
             return
+        possibleFiles = self.conf.readPkConf().keys()
         editor = os.environ.get('EDITOR', 'vim')
-        subprocess.run([editor]
-                + [f'{self.conf.path}/{alias}' for alias in args])
+        files = []
+        for alias in args:
+            if alias not in possibleFiles:
+                print(f'{colors.FAIL}no such file "{alias}"{colors.END}')
+            else:
+                files.append(f'{self.conf.path}/{alias}')
+        subprocess.run([editor] + files)
 
     def check(self, args: list) -> None:
         needUpdate = self.conf.getNeededUpdates().keys()
