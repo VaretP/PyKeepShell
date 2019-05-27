@@ -19,7 +19,7 @@ Type `pykeep` anywhere in your shell.
 - `add path alias`: add path as alias into pykeep
 - `pull args...`: replace files in pykeep from their path
 - `update ..args`: apply changes on files that can be updated
-- `edit arg`: start your **$EDITOR** (*default vim*) on a file
+- `edit args...`: start your **$EDITOR** (*default vim*) on args
 - `git ...args`: execute git commands in pykeep
 - `help`: show help
 - `exit`: close pykeep
