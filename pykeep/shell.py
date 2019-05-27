@@ -27,6 +27,7 @@ class Shell():
                 'check': self.check,
                 'update': self.update,
                 'help': self.help,
+                'git': self.git,
         }
         readline.parse_and_bind('tab: complete')
 
@@ -118,6 +119,12 @@ class Shell():
                           f'{colors.END}')
         else:
             print(f'{colors.WARNING}pull: usage: pull "file" ...{colors.END}')
+
+    def git(self, args: list) -> None:
+        actualPath = os.getcwd()
+        os.chdir(self.conf.path)
+        subprocess.run(['git'] + args)
+        os.chdir(actualPath)
 
     def help(self, args: list) -> None:
         print(
