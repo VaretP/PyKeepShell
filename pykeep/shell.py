@@ -26,6 +26,7 @@ class Shell():
                 'pull': self.pull,
                 'check': self.check,
                 'update': self.update,
+                'help': self.help,
         }
         readline.parse_and_bind('tab: complete')
 
@@ -44,7 +45,8 @@ class Shell():
 
     def add(self, args: list) -> None:
         if len(args) != 2:
-            print(f'{colors.WARNING}add: usage: add "path" "alias"{colors.END}')
+            print(f'{colors.WARNING}add: usage: add "path" "alias"'
+                  f'{colors.END}')
             return
         path = os.path.expanduser(args[0])
         try:
@@ -116,6 +118,17 @@ class Shell():
                           f'{colors.END}')
         else:
             print(f'{colors.WARNING}pull: usage: pull "file" ...{colors.END}')
+
+    def help(self, args: list) -> None:
+        print(
+            '  -- list:           list all files in pykeep\n'
+            '  -- check ...args:  check if any files can be updated\n'
+            '  -- add path alias: add path as alias into pykeep\n'
+            '  -- pull args...:   replace files in pykeep from their path\n'
+            '  -- update ..args:  apply changes on files that can be updated\n'
+            '  -- edit arg:       start your $EDITOR (default vim) on a file\n'
+            '  -- exit:           close pykeep'
+        )
 
     def complete(self, text: str, state: int) -> str:
         if text == '':
