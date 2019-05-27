@@ -30,7 +30,17 @@ class Shell():
         readline.parse_and_bind('tab: complete')
 
     def list(self, args: list) -> None:
-        subprocess.run(['ls', '--color=auto', self.conf.path])
+        possibleFiles = self.conf.readPkConf().keys()
+        needUpdate = self.conf.getNeededUpdates().keys()
+        out = ''
+        for f in os.listdir(self.conf.path):
+            if f not in possibleFiles:
+                out += f'  {colors.FAIL}{f}{colors.END}'
+            elif f in needUpdate:
+                out += f'  {colors.WARNING}{f}{colors.END}'
+            else:
+                out += f'  {f}'
+        print(out)
 
     def add(self, args: list) -> None:
         if len(args) != 2:
