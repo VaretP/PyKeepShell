@@ -122,8 +122,24 @@ class Shell():
 
     def git(self, args: list) -> None:
         actualPath = os.getcwd()
+        newArgs = []
+        check = False
+        s = ''
+        for arg in args:
+            if arg.startswith('"') or arg.startswith('\''):
+                check = True
+                s += arg[1:]
+            elif arg.endswith('"') or arg.endswith('\''):
+                check = False
+                newArgs.append(f'{s} {arg[:len(arg) - 1]}')
+                s = ''
+            elif check:
+                s += f' {arg}'
+            else:
+                newArgs.append(arg)
+
         os.chdir(self.conf.path)
-        subprocess.run(['git'] + args)
+        subprocess.run(['git'] + newArgs)
         os.chdir(actualPath)
 
     def help(self, args: list) -> None:
